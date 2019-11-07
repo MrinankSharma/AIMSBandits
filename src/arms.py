@@ -31,6 +31,9 @@ class Arm(ABC):
             "r": [],
         }
 
+    def compute_rt(self, T):
+        return (2.0 * np.log(T) / self.n)**0.5
+
 class UniformArm(Arm):
 
     @classmethod
@@ -109,7 +112,10 @@ class GaussianArm(Arm):
     def reset(self):
         super().reset()
         self.post_mu = self.prior_mu
-        self.post_sigma = self.post_sigma
+        self.post_sigma = self.prior_sigma
+
+    def compute_rt(self, T):
+        return self.sigma * (8 * np.log(T) / self.n)**0.5
 
 class BernoulliArm(Arm):
 

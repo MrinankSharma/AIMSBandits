@@ -107,7 +107,7 @@
 	\end{align}
 	Thus, setting
 	\begin{align}
-	r_a(t) = \sqrt{\frac{8 \sigma^2}{n} \log T},
+	r_a(t) = \sqrt{\frac{8 \sigma^2}{n} \log T}, \label{gaussian_rad}
 	\end{align}
 	gives the probability of the bad event decaying with $T^4$, even though Gaussian RVs have infinite support. It is pleasing that this equation scales linearly with $\sigma$, as we expect that larger $\sigma$ should give a larger confidence radius. 
 	
@@ -132,8 +132,22 @@
 	\end{align}
 	The above equation provides a way to update the posterior on $\mu_a$ as additional observations of the reward arrive. Then, the normal Thompson sampling approach can be applied. 
 	
-	\section{Results}
-	
+	\section{Simulations}
+	\subsection{Bernoulli Arms}
+	We draw $K=5$ Bernoulli arms, sampling the mean parameter according to $\text{Beta}(1, 1)$. This is then set to be the prior distribution on the mean of each Bernoulli distribution. We implement the explore-first algorithm setting $N = T^{2/3} (\log T)^{1/3}$, where $N$ is the number of times each arm is explored before the exploit stage of the algorithm. This is the setting used to derive regret bounds in \cite{book}. Additionally,  we use $\epsilon = t^{-1/3} (K \log t)^{1/3}$ for the $\epsilon$-greedy algorithm, which is again the value used to derive regret bounds. 
+	\begin{figure}[H]
+		\includegraphics[width=\textwidth]{bernoulli}
+		\centering
+		\caption{\label{bernoulli}Simulation results using Bernoulli arms. Left: distribution of mean values of each arm. Right: expected cumulative regret for the different algorithms considered here. }
+	\end{figure}
+
+	\subsection{Gaussian Arms}
+	We draw $K=10$ Gaussian arms, sampling the mean parameter according to $\altmathcal{N}(0.5, 1)$. The variance of the each arm is set to be $\sigma^2 = 0.1^2$, and this is the same across all arms. We consider setting the prior distribution on the mean value of each arm to be the ``correct" prior (i.e. the distribution according to which the mean was sampled) as well as $\altmathcal{N}(1, 0.25^2)$ (labelled ``A") and $\altmathcal{N}(-1, 0.25^2)$ (labelled ``B").  We use the same configurations for parameters of the explore-first algorithm and $\epsilon$-grredy algorithm as for the Bernoulli arms, but we use Eq.~\eqref{gaussian_rad} as the confidence range for the UCB algorithm. 
+	\begin{figure}[H]
+		\includegraphics[width=\textwidth]{gaussian}
+		\centering
+		\caption{\label{gaussian} Simulation results using Gaussiani arms. Left: distribution of mean values of each arm. Right: expected cumulative regret for the different algorithms considered here.}
+	\end{figure}
 	\section{Conclusions}
 
 \bibliography{sample}
