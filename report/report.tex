@@ -16,7 +16,7 @@
 \bibliographystyle{unsrtnat}
 
 %% Sets page size and margins
-\usepackage[a4paper,marginparwidth=1cm, left=1cm, right=1cm, top=2.54cm, bottom=2.54cm]{geometry}
+\usepackage[a4paper,marginparwidth=1cm, left=1cm, right=1cm, top=2cm, bottom=2cm]{geometry}
 \usepackage[toc,page]{appendix}
 
 %% Useful packages
@@ -46,7 +46,7 @@
 \setlist[itemize]{noitemsep, topsep=2pt}
 \setlist[enumerate]{noitemsep, topsep=2pt}
 
-\title{\vspace{-3cm}AIMS CDT: Online Learning and Multi-Armed Bandits}
+\title{\vspace{-2cm}AIMS CDT: Online Learning and Multi-Armed Bandits}
 \author{Mrinank Sharma}
 \date{}
 
@@ -56,11 +56,11 @@
 	\section{Introduction}
 	In the Multi-Armed Bandit (MAB) problem, an agent (or algorithm) is required make decisions under uncertainty over a number of sequential steps in order to maximise a reward function, or equivalently, to minimise a loss function. This type of problem is found often in the real-world, including the ad selection problem, where an algorithm must determine which ad to display to a user, as well as in medical trials, where a doctor must decide which treatment to provide a patient.
 	
-	Here, we focus on stochastic bandits for which the rewards provided by each arm are drawn according to some underlying distribution for each arm. We consider different algorithms to solve this problem, and empirically compare them their performance in terms of \emph{regret}. 
+	Here, we focus on \emph{stochastic bandits} for which the rewards provided by each arm are drawn according to some underlying distribution for each arm. We consider different algorithms to solve this problem, and empirically compare them their performance in terms of \emph{regret}. 
 	
 	\section{Preliminaries}
 	\subsection{Problem Definition}
-	The algorithm chooses between $K$ different actions (also refered to as arms) across $T$ rounds. For the stochastic bandit problem, rewards provided by arm $a \in  \lbrace 1, \ldots, K \rbrace$ are drawn according to some fixed (but unknown) distribution, $\altmathcal{D}_a$. Denote the chosen action at round $t$ as $a_t$. Then, the reward at this timestep, $r_t$, is
+	The algorithm chooses between $K$ different actions (also refered to as arms) across $T$ rounds. For the stochastic bandit problem, rewards provided by arm $a \in  \lbrace 1, \ldots, K \rbrace$ are drawn according to some fixed (but unknown) distribution, $\altmathcal{D}_a$ (if the distributions were known, the problem would be trivial). Denote the chosen action at round $t$ as $a_t$. Then, the probability of reward at this timestep, $r_t$, is
 	\begin{align}
 	\text{Pr}(r_t | a_t = a) = \altmathcal{D}_a(r_t).
 	\end{align}
@@ -74,34 +74,33 @@
 	\end{align}
 	and $\mu^* = \max_{a} \mu(a)$. The maximiser of this will be denoted as $a^*$. The regret compares the performance of the algorithm with playing the best possible action ($a^*$) at each round. 
 	
-	Many of the algorithms that we will consider will require a notion of a \emph{confidence radius}, representing a region around the empirical means which we believe that the true mean will lie in. Typically, the confidence radius is chosen to be of the form:
+	Many of the algorithms that we will consider will require a notion of a \emph{confidence radius}, representing a region around the empirical means which we believe that the true mean will lie in with high probability. Typically, the confidence radius is chosen to be of the form:
 	\begin{align}
 	r(a) = \sqrt{\frac{2 \log T}{n_a}}
 	\end{align} 
 	where $n_a$ is the number of times which arm $a$ has been played. This choice is made so that:
 	\begin{align}
-	Pr[|\overline{r_a} - \mu_a| > r(a)] \leq \frac{2}{T^4}
+	\text{Pr}[|\overline{r_a} - \mu_a| > r(a)] \leq \frac{2}{T^4}
 	\end{align}
 	where $\overline{r_a}$ is the sample mean of the rewards provided by arm $a$. Intuitvely, we require that the probability of the sample mean being far from the true mean (which we will refer to as the `bad event') decays quickly enough, and this motivates this choice. Note that the above bound is typically derived using Hoeffding's inequality, which only applies for bounded random variables. 
 	
-	Here, we will consider the following algorithms: (1) Explore-first (2) Upper Confidence Bound (UCB) (3) $\epsilon$-Greedy (4) Thompson Sampling. Note that this is an (approximate) Bayesian approach, which requires the definition of priors over arm parameters. We will also focus on the cases where $\altmathcal{D}_a$ are Bernoulli or Gaussian random variables. Please see \cite{book} for an overview of these algorithms. 
+	Here, we will consider the following algorithms: (1) Explore-first (2) Upper Confidence Bound (UCB) (3) $\epsilon$-Greedy (4) Thompson Sampling. Note that this is an (approximate) Bayesian approach, which requires a prior over arm parameters to be defined. We will also focus on the cases where $\altmathcal{D}_a$ are Bernoulli or Gaussian random variables. Please see \cite{book} for an overview of these algorithms. 
 	
 	\subsection{Confidence Radius for Gaussian RVs}
-	The proof that the probability of a bad event decays with $T^4$ does not hold for Gaussian random variables, because these random variables have infinite support. However, we now prove a similar tail bound for these variables and thus derive a confidence radius. 
+	The proof that the probability of a bad event decays with $T^4$ does not hold for Gaussian random variables, because these random variables have infinite support. However, we now prove a similar tail bound for these variables and thus derive a confidence radius, given that the probability of the bad event decays quickly enough. 
 	
 	Let $r_a \sim \altmathcal{N}(\mu_a, \sigma^2)$, and suppose that $\lbrace r_a^{(1)}, \ldots, r_a^{(n_a)} \rbrace$ are samples from this distribution. We need to consider:
 	\begin{align}
 	\text{Pr}\Big[ \Big| \underbrace{\frac{1}{n_a} \sum_{i=1}^{n_a} r_a^{(i)} - \mu_a}_{Z} \Big| > t \Big].
 	\end{align}
 	Using the properties of Gaussian RVs, $Z \sim \altmathcal{N}(0, \sigma^2 / n_a)$. Then, 
-	
 	\begin{align}
 	\text{Pr}[|Z| > t] &= 2\ \text{Pr}[Z > t] \tag*{(Symmetry)} \\
 	&= 2\ \text{Pr}[\exp(\lambda Z) > \exp(\lambda t)] \tag*{(For $\lambda > 0$)} \\
 	&\leq \frac{2\  \overbrace{\mathbb{E}[\exp(\lambda Z)]}^{\text{MFG}_Z(\lambda)}}{\exp(\lambda t)} \tag*{(Markov's Inequality)} \\
 	&= 2\ \exp(\frac{\sigma^2 \lambda^2}{2 n_a} - \lambda t),
 	\end{align}
-	By subsituting the closed form expression for the Moment Generating Function (MGF) for Gaussian RVs. Then, minimising the upper bound over lambda yields:
+	by subsituting the closed form expression for the Moment Generating Function (MGF) for Gaussian RVs. Then, minimising the upper bound over lambda yields:
 	\begin{align}
 	\text{Pr}[|Z| > t] \leq 2 \exp(\frac{-n}{2\sigma^2} t^2).
 	\end{align}
@@ -112,7 +111,7 @@
 	gives the probability of the bad event decaying with $T^4$, even though Gaussian RVs have infinite support. It is pleasing that this equation scales linearly with $\sigma$, as we expect that larger $\sigma$ should give a larger confidence radius. 
 	
 	\subsection{Thompson Sampling for Gaussian RVs}
-	In order to implement Thompson Sampling, we need to be able to compute the posterior on arm parameters. We will use conjugate prior distributions, thus using a Beta and Gaussian prior for the Bernoulli and Gaussian arms respectively. The update equations for the Bernoulli arm posterior is found in \cite{thompson}, so all that remains is to derive the update equations for Gaussian arms.
+	In order to implement Thompson Sampling, we need to be able to compute the posterior over arm parameters. We will use conjugate prior distributions, thus using a Beta and Gaussian prior for the Bernoulli and Gaussian arms respectively. The update equations for the Bernoulli arm posterior is found in \cite{thompson}, so all that remains is to derive the update equations for Gaussian arms.
 	
 	Consider arm $a$. The rewards from this arm have a Gaussian distribution i.e., 
 	\begin{align}
@@ -136,20 +135,30 @@
 	\subsection{Bernoulli Arms}
 	We draw $K=5$ Bernoulli arms, sampling the mean parameter according to $\text{Beta}(1, 1)$. This is then set to be the prior distribution on the mean of each Bernoulli distribution. We implement the explore-first algorithm setting $N = T^{2/3} (\log T)^{1/3}$, where $N$ is the number of times each arm is explored before the exploit stage of the algorithm. This is the setting used to derive regret bounds in \cite{book}. Additionally,  we use $\epsilon = t^{-1/3} (K \log t)^{1/3}$ for the $\epsilon$-greedy algorithm, which is again the value used to derive regret bounds. 
 	\begin{figure}[H]
-		\includegraphics[width=\textwidth]{bernoulli}
+		\includegraphics[width=0.95\textwidth]{bernoulli}
 		\centering
-		\caption{\label{bernoulli}Simulation results using Bernoulli arms. Left: distribution of mean values of each arm. Right: expected cumulative regret for the different algorithms considered here. }
+		\caption{\label{bernoulli}Simulation results using Bernoulli arms. Left: distribution of mean values of each arm. Right: expected cumulative regret for the different algorithms considered here. Shaded region shows the empiricial standard deviation producted across $5$ random seeds.}
 	\end{figure}
 
 	\subsection{Gaussian Arms}
-	We draw $K=10$ Gaussian arms, sampling the mean parameter according to $\altmathcal{N}(0.5, 1)$. The variance of the each arm is set to be $\sigma^2 = 0.1^2$, and this is the same across all arms. We consider setting the prior distribution on the mean value of each arm to be the ``correct" prior (i.e. the distribution according to which the mean was sampled) as well as $\altmathcal{N}(1, 0.25^2)$ (labelled ``A") and $\altmathcal{N}(-1, 0.25^2)$ (labelled ``B").  We use the same configurations for parameters of the explore-first algorithm and $\epsilon$-grredy algorithm as for the Bernoulli arms, but we use Eq.~\eqref{gaussian_rad} as the confidence range for the UCB algorithm. 
+	We draw $K=10$ Gaussian arms, sampling the mean parameter according to $\altmathcal{N}(0.5, 1)$. The variance of the each arm is set to be $\sigma^2 = 0.1^2$, and this is the same across all arms. We consider setting the prior distribution on the mean value of each arm to be the ``correct" prior (i.e. the distribution according to which the mean was sampled) as well as $\altmathcal{N}(1, 0.25^2)$ (labelled ``A") and $\altmathcal{N}(-1, 0.25^2)$ (labelled ``B").  We use the same configurations for parameters of the explore-first algorithm and $\epsilon$-Greedy algorithm as for the Bernoulli arms, but we use Eq.~\eqref{gaussian_rad} as the confidence range for the UCB algorithm. 
+	
 	\begin{figure}[H]
-		\includegraphics[width=\textwidth]{gaussian}
+		\includegraphics[width=0.95\textwidth]{gaussian}
 		\centering
-		\caption{\label{gaussian} Simulation results using Gaussiani arms. Left: distribution of mean values of each arm. Right: expected cumulative regret for the different algorithms considered here.}
+		\caption{\label{gaussian} Simulation results using Gaussiani arms. Left: distribution of mean values of each arm. Right: expected cumulative regret for the different algorithms considered here. Shaded region shows the empiricial standard deviation produced across $5$ random seeds. }
 	\end{figure}
+
+	Please see \url{https://github.com/MrinankSharma/AIMSBandits} for full code listings. 
+
+	\section{Discussion}
+	Inspecting Fig.~\ref{bernoulli}, the performance of the considered algorithms is similar for the first $10$ rounds. After this point, Thompson sampling seems to perform best, following by UCB, $\epsilon$-Greedy and the explore-first algorithm. It is worth noting that the additional regret after the exploration round of the explore-first algorithm is zero i.e., the algorithm does eventually find the best arm. Theoretically, UCB achieves a regret upper bound of $\altmathcal{O}(\sqrt{Kt \log T})$, corresponding to a slope of $1/2$ on the log-log plot whilst $\epsilon$-Greedy achieves a bound of $t^{2/3} \altmathcal{O}(K \log t)^{1/3}$, which should correspond to a slope of $2/3$ (provided the log term is small enough) \citep{book}. The bound for the explore-first algorithm does not hold for all $t$. The UCB bound is not tight since as $t$ becomes large, eventually the right arm will be picked. The slopes do look approximately linear between rounds $1$ and $100$, but the slopes for UCB and $\epsilon$-Greedy are similar with value approximately $0.8$. The reason for this is unknown.  
+	
+	Inspecting Fig.~\ref{gaussian}, corresponding to the Gaussian arms, UCB and Thompson Sampling (for the ``correct" prior and prior A) perform significantly better than the other algorithms considered. It is clear that the prior used has a significant effect on the performance of Thompson sampling, but it is suprising that the best performance (in terms of regret) is given by prior $A$, which overestimates the true prior mean and underestimates the standard deviation. It is not entirely clear why this occurs, but it is worth noting that using the true prior gives a smaller empirical standard deviation compared to both misspecified priors. UCB using the modified confidence region also performs very close to Thompson sampling and this is also far easier to implement. Using prior B results in incredibly poor performance, in fact, worse than all algorithms other than the explore-first algorithm for a larger number of rounds, which is concerning. This has implications in practice; perhaps if there is no true prior information, one is best served by using an non Bayesian approach rather than applying a weak uninformative prior, as using a poor prior can actually have a large adverse affect upon Thompson sampling. 
+	
 	\section{Conclusions}
 
-\bibliography{sample}
+	By bounding the tail probability for Gaussian random variables, we derive an alternative formula for the confidence radius of a Gaussian arm, and then derive Thompson sampling for these arms. We run simulations on both Bernoulli and Gaussian arms, comparing Thompson sampling with other standard algorithms. The posteriors for Thompson sampling are updated using \emph{online learning}. In the simulations considered, Thompson sampling, provided that the prior on arm parameters is specified correctly, outperforms other algorithms in terms of expected cumulative regret. Of the other algorithms, UCB also performs very well, and in cases whether compute power is incredibly limited, UCB may be a better option than Thompson sampling. It is worth nothing that the prior used for Thompson sampling has a large effect on the performance of the algorithm, and in cases where there is truly no prior information, a more simple algorithm, such as UCB, is more appropriate as choosing a poor prior results in incredibly poor performance. It is suprising that UCB can perform as well as a Bayesian approach. 
+	\bibliography{sample}
 
 \end{document}
